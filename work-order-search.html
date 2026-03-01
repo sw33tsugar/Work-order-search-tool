@@ -178,7 +178,13 @@ function doSearch() {
   const words = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
   
   if (words.length === 0) {
-    filtered = DATA;
+    filtered = [];
+    currentPage = 1;
+    countEl.textContent = DATA.length.toLocaleString() + ' records — start typing to search';
+    tbody.innerHTML = '';
+    noResults.style.display = 'none';
+    pagination.innerHTML = '';
+    return;
   } else {
     filtered = DATA.filter(([code, desc]) => {
       const codeL = code.toLowerCase();
@@ -207,9 +213,9 @@ function doSearch() {
 document.getElementById('searchInput').addEventListener('input', doSearch);
 document.getElementById('searchMode').addEventListener('change', doSearch);
 
-// Initial render
-countEl.textContent = `${DATA.length.toLocaleString()} records`;
-render();
+// Show empty state on load - results only appear after typing
+filtered = [];
+countEl.textContent = DATA.length.toLocaleString() + ' records — start typing to search';
 </script>
 </body>
 </html>
