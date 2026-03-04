@@ -5,88 +5,167 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Work Order Search</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; min-height: 100vh; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+
+  body {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    background-image: linear-gradient(135deg, rgba(139,197,63,0.08) 0%, rgba(74,135,17,0.08) 100%);
+    color: #2d3748;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding: 0;
+  }
+
+  /* Header bar */
+  .top-bar {
+    background: white;
+    border-bottom: 3px solid #8BC53F;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .logo-area { display: flex; align-items: center; gap: 16px; }
+  .logo-image { max-width: 48px; max-height: 48px; width: auto; height: auto; object-fit: contain; }
+  .logo-text { display: flex; flex-direction: column; }
+  .logo-text .main { font-size: 22px; font-weight: 700; color: #2d3748; letter-spacing: -0.5px; }
+  .logo-text .sub { font-size: 12px; color: #718096; margin-top: -2px; }
+
+  /* Main container */
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 32px; }
+
+  /* Page Header Card */
+  .page-header {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+  .page-header h1 { font-size: 28px; color: #2d3748; margin-bottom: 6px; font-weight: 700; }
+  .page-header p { color: #718096; font-size: 14px; margin: 0; }
+
+  /* Search Bar */
+  .search-bar {
+    background: white;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 14px;
+    font-size: 16px;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #f8f9fa;
+  }
+  .search-input:focus { border-color: #8BC53F; background: white; }
   
-  .header { background: linear-gradient(135deg, #0E2841 0%, #1a4a7a 100%); color: white; padding: 28px 32px; }
-  .header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
-  .header p { margin-top: 6px; opacity: 0.75; font-size: 0.9rem; }
+  .filter-select {
+    padding: 12px 14px;
+    font-size: 16px;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    background: #f8f9fa;
+    cursor: pointer;
+    color: #2d3748;
+  }
+  .filter-select:focus { border-color: #8BC53F; background: white; }
   
-  .search-bar { background: white; padding: 20px 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-  .search-input { flex: 1; min-width: 200px; padding: 10px 16px; font-size: 1rem; border: 2px solid #d0dfe5; border-radius: 8px; outline: none; transition: border-color 0.2s; }
-  .search-input:focus { border-color: #1a4a7a; }
-  .filter-select { padding: 10px 14px; font-size: 0.9rem; border: 2px solid #d0dfe5; border-radius: 8px; outline: none; background: white; cursor: pointer; }
-  .filter-select:focus { border-color: #1a4a7a; }
-  .result-count { color: #666; font-size: 0.85rem; white-space: nowrap; }
-  
-  .results-container { padding: 20px 32px; }
-  
-  .table-wrap { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; }
+  .result-count { color: #718096; font-size: 14px; white-space: nowrap; margin-left: auto; }
+
+  /* Results Table */
+  .results-container { padding: 0; }
+  .table-wrap { background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
   
   table { width: 100%; border-collapse: collapse; }
-  thead th { background: #D0DFE5; color: #0E2841; font-weight: 700; padding: 12px 16px; text-align: left; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 1; }
+  thead th { background: #f8f9fa; color: #2d3748; font-weight: 700; padding: 14px 16px; text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; }
   tbody tr { border-bottom: 1px solid #f0f4f8; transition: background 0.15s; }
   tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: #f5f9fc; }
-  tbody tr:nth-child(even) { background: #fafcfd; }
-  tbody tr:nth-child(even):hover { background: #f0f6fa; }
-  td { padding: 10px 16px; font-size: 0.92rem; color: #333; }
-  td:first-child { font-family: 'Courier New', monospace; font-size: 0.88rem; color: #1a4a7a; font-weight: 600; width: 220px; }
+  tbody tr:hover { background: #f8fcf4; }
+  td { padding: 12px 16px; font-size: 15px; color: #2d3748; }
+  td:first-child { font-family: 'Segoe UI Mono', 'Courier New', monospace; font-size: 14px; color: #8BC53F; font-weight: 700; width: 220px; }
   
   .highlight { background: #ffe082; border-radius: 2px; padding: 0 1px; }
   
-  .no-results { text-align: center; padding: 60px 20px; color: #999; }
+  .no-results { text-align: center; padding: 60px 20px; color: #718096; }
   .no-results svg { margin-bottom: 16px; opacity: 0.4; }
   .no-results p { font-size: 1rem; }
   
-  .pagination { display: flex; gap: 6px; justify-content: center; align-items: center; padding: 20px; flex-wrap: wrap; }
-  .page-btn { padding: 6px 12px; border: 1px solid #d0dfe5; background: white; border-radius: 6px; cursor: pointer; font-size: 0.85rem; color: #333; transition: all 0.15s; }
-  .page-btn:hover { background: #D0DFE5; }
-  .page-btn.active { background: #0E2841; color: white; border-color: #0E2841; }
+  .pagination { display: flex; gap: 6px; justify-content: center; align-items: center; padding: 24px 0; flex-wrap: wrap; }
+  .page-btn { padding: 8px 14px; border: 1px solid #e5e7eb; background: white; border-radius: 8px; cursor: pointer; font-size: 14px; color: #2d3748; transition: all 0.15s; font-weight: 600; }
+  .page-btn:hover { background: #f8f9fa; border-color: #cbd5e0; }
+  .page-btn.active { background: #8BC53F; color: white; border-color: #8BC53F; }
   .page-btn:disabled { opacity: 0.4; cursor: default; }
-  .page-info { color: #666; font-size: 0.85rem; }
+  .page-info { color: #718096; font-size: 14px; }
 
   @media (max-width: 600px) {
-    .header { padding: 20px; }
-    .search-bar, .results-container { padding: 14px; }
+    .container { padding: 20px 16px; }
+    .search-bar { padding: 16px; }
     td:first-child { width: 120px; }
   }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>🔍 Work Order Search</h1>
-  <p>Search across 26,989 equipment codes and descriptions — type multiple words in any order</p>
-</div>
-
-<div class="search-bar">
-  <input type="text" class="search-input" id="searchInput" placeholder="e.g. pan white charge valve (any word order)..." autofocus>
-  <select class="filter-select" id="searchMode">
-    <option value="both">Code + Description</option>
-    <option value="code">Code only</option>
-    <option value="desc">Description only</option>
-  </select>
-  <span class="result-count" id="resultCount">Loading...</span>
-</div>
-
-<div class="results-container">
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Equipment Code</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-    <div class="no-results" id="noResults" style="display:none">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <p>No results found. Try a different search term.</p>
+<div class="top-bar">
+  <div class="logo-area">
+    <img src="https://raw.githubusercontent.com/sw33tsugar/MCC_location_finder/main/bs.png" alt="British Sugar Logo" class="logo-image">
+    <div class="logo-text">
+      <div class="main">Work Order Search</div>
+      <div class="sub">British Sugar</div>
     </div>
   </div>
-  <div class="pagination" id="pagination"></div>
+</div>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Equipment Search</h1>
+    <p>Search across 26,989 equipment codes and descriptions — type multiple words in any order</p>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" class="search-input" id="searchInput" placeholder="e.g. pan white charge valve (any word order)..." autofocus>
+    <select class="filter-select" id="searchMode">
+      <option value="both">Code + Description</option>
+      <option value="code">Code only</option>
+      <option value="desc">Description only</option>
+    </select>
+    <span class="result-count" id="resultCount">Loading...</span>
+  </div>
+
+  <div class="results-container">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Equipment Code</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="no-results" id="noResults" style="display:none">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <p>No results found. Try a different search term.</p>
+      </div>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
 </div>
 
 <script>
